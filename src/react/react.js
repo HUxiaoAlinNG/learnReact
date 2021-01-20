@@ -35,6 +35,10 @@ import Component from "./component";
  * @param {*} children  
  */
 function createElement(type, config, children) {
+  let ref;
+  if (config) {
+    ref = config.ref;
+  }
   const props = { ...config };
   if (arguments.length > 3) {
     children = Array.prototype.slice.call(arguments, 2);
@@ -43,13 +47,17 @@ function createElement(type, config, children) {
   return {
     type,
     props,
+    ref,
   };
 }
 
-
+function createRef() {
+  return { current: null };
+}
 
 const React = {
   createElement,
   Component,
+  createRef,
 };
 export default React

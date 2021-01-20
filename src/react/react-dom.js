@@ -15,7 +15,7 @@ export function createDOM(vdom) {
   if (typeof vdom === "string" || typeof vdom === "number") {
     return document.createTextNode(vdom);
   }
-  const { type, props } = vdom;
+  const { type, props, ref } = vdom;
   let dom;
   if (typeof type === 'function') {
     if (type.isReactComponent) {
@@ -40,6 +40,9 @@ export function createDOM(vdom) {
   }
   // 用来更新
   vdom.dom = dom;
+  if (ref) {
+    ref.current = dom;
+  }
   return dom;
 }
 
