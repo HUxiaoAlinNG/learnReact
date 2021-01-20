@@ -1,3 +1,5 @@
+import { addEvent } from "./event"
+
 /**
  * 
  * @param {*} vdom 虚拟dom
@@ -71,7 +73,7 @@ function updateProps(dom, props) {
         dom.style[attr] = style[attr]
       }
     } else if (key.startsWith('on')) { // 事件
-      dom[key.toLocaleLowerCase()] = props[key];
+      addEvent(dom, key.toLocaleLowerCase(), props[key]);
     } else {
       dom[key] = props[key];
     }

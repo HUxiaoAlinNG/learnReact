@@ -1,5 +1,5 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from './react/react';
+import ReactDOM from './react/react-dom';
 
 let element1 = <div className="title" style={{ color: 'red' }}><span>hello</span>world</div>;
 console.log(JSON.stringify(element1, null, 2))
@@ -87,16 +87,21 @@ class Counter extends React.Component {
   }
   handleClick = () => {
     // 在一个函数执行事件完毕后批量渲染，所以这里看似是异步更新
+    this.setState((preState) => ({ number: preState.number + 1 }));
+    console.log(this.state.number);  // ==> 0
     this.setState({ number: this.state.number + 1 });
-    console.log(this.state);  // ==> 0
+    console.log(this.state.number);// ==> 0
     this.setState({ number: this.state.number + 1 });
-    console.log(this.state);// ==> 0
+    console.log(this.state.number);// ==> 0
     // 函数执行事件完毕后立即执行，为同步更新
     setTimeout(() => {
+      console.log(this.state.number); // ==> 1
+      this.setState((preState) => ({ number: preState.number + 1 }));
+      console.log(this.state.number); // ==> 2
       this.setState({ number: this.state.number + 1 });
-      console.log(this.state); // ==> 2
+      console.log(this.state.number); // ==> 3
       this.setState({ number: this.state.number + 1 });
-      console.log(this.state); // ==> 3
+      console.log(this.state.number); // ==> 4
     });
   }
 

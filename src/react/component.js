@@ -1,8 +1,10 @@
 import { createDOM } from "./react-dom"
+import { isFunction } from "./utils"
 
-export let updateQueue = {
+// 批量更新队列
+export const updateQueue = {
   updaters: [],
-  isBatchingUpdate: false,
+  isBatchingUpdate: false,  // 用来标示是否存入队列
   add(updater) {
     this.updaters.push(updater);
   },
@@ -11,6 +13,7 @@ export let updateQueue = {
     this.isBatchingUpdate = false;
   }
 };
+
 class Updater {
   constructor(classInstance) {
     this.classInstance = classInstance;
@@ -18,20 +21,24 @@ class Updater {
   }
   addState(partialState) {
     this.pendingStates.push(partialState);
+    // 延迟批量更新 或 立即更新
     updateQueue.isBatchingUpdate ? updateQueue.add(this) : this.updateComponent();
   }
   updateComponent() {
-    let { classInstance, pendingStates } = this;
+    const { classInstance, pendingStates } = this;
     if (pendingStates.length > 0) {
       classInstance.state = this.getState();
+      // 渲染页面
       classInstance.forceUpdate();
     }
   }
+  // 更新状态
   getState() {
-    let { classInstance, pendingStates } = this;
+    const { classInstance, pendingStates } = this;
     let { state } = classInstance;
     if (pendingStates.length) {
       pendingStates.forEach(nextState => {
+        // 若为函数形式，则将最新的state传递进去
         if (isFunction(nextState)) {
           nextState = nextState.call(classInstance, state);
         }
@@ -43,19 +50,23 @@ class Updater {
   }
 }
 
+/**
+ * 类组件
+ */
 class Component {
   // 标示，用来区分于函数组件
   static isReactComponent = true
   constructor(props) {
     this.props = props;
     this.state = {};
+    this.updater = new Updater(this);
   }
   setState(partialState) {
-    const { state } = this;
-    // 合并，避免更新单独某个属性
-    this.state = { ...state, ...partialState };
+    this.updater.addState(partialState);
+  }
+  // 强制刷新
+  forceUpdate() {
     const newRenderVdom = this.render();
-    // 重新渲染
     mountClassComponent(this, newRenderVdom);
   }
 }
