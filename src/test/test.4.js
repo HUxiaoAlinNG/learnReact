@@ -9,7 +9,7 @@ class Counter extends React.Component {
     // 在一个函数执行事件完毕后批量渲染，所以这里看似是异步更新
     this.setState((preState) => ({ number: preState.number + 1 }));
     console.log(this.state.number);  // ==> 0
-    this.setState({ number: this.state.number + 1 });
+    this.setState((preState) => ({ number: preState.number + 1 }));
     console.log(this.state.number);// ==> 0
     this.setState({ number: this.state.number + 1 });
     console.log(this.state.number);// ==> 0

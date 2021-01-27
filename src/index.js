@@ -1,5 +1,6 @@
 import ReactDOM from "./react/react-dom";
-import { element } from "./test/test.5";
+// import ReactDOM from "react-dom";
+import { element } from "./test/test.6";
 
 ReactDOM.render(
   element,

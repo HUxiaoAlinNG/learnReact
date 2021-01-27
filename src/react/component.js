@@ -14,22 +14,36 @@ export const updateQueue = {
   }
 };
 
+// 是否更新
+function shouldUpdate(classInstance, nextState) {
+  // 增加生命周期 shouldComponentUpdate
+  let noUpdate = classInstance.shouldComponentUpdate && !classInstance.shouldComponentUpdate(classInstance.props, nextState);
+  classInstance.state = nextState;
+  if (!noUpdate) {
+    // 渲染页面
+    classInstance.forceUpdate();
+  }
+}
+
 class Updater {
   constructor(classInstance) {
     this.classInstance = classInstance;
     this.pendingStates = [];
   }
+  // 添加状态
   addState(partialState) {
     this.pendingStates.push(partialState);
+    this.emitUpdate();
+  }
+  // 更新
+  emitUpdate() {
     // 延迟批量更新 或 立即更新
     updateQueue.isBatchingUpdate ? updateQueue.add(this) : this.updateComponent();
   }
   updateComponent() {
     const { classInstance, pendingStates } = this;
     if (pendingStates.length > 0) {
-      classInstance.state = this.getState();
-      // 渲染页面
-      classInstance.forceUpdate();
+      shouldUpdate(classInstance, this.getState())
     }
   }
   // 更新状态
@@ -66,8 +80,16 @@ class Component {
   }
   // 强制刷新
   forceUpdate() {
+    // 增加生命周期 componentWillUpdate
+    if (this.componentWillUpdate) {
+      this.componentWillUpdate();
+    }
     const newRenderVdom = this.render();
     mountClassComponent(this, newRenderVdom);
+    // 增加生命周期 componentDidUpdate
+    if (this.componentDidUpdate) {
+      this.componentDidUpdate()
+    }
   }
 }
 

@@ -59,10 +59,18 @@ function mountClassComponent(vdom) {
   const { type, props } = vdom;
   // 构造实例
   const classInstance = new type(props);
+  // 增加生命周期 componentWillMount
+  if (classInstance.componentWillMount) {
+    classInstance.componentWillMount();
+  }
   const renderVdom = classInstance.render();
   const dom = createDOM(renderVdom);
   // 用来更新
   classInstance.dom = dom;
+  // 增加生命周期 componentDidMount
+  if (classInstance.componentDidMount) {
+    classInstance.componentDidMount();
+  }
   return dom;
 }
 
