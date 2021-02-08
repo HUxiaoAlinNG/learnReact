@@ -89,13 +89,22 @@ class Component {
     if (this.componentWillUpdate) {
       this.componentWillUpdate();
     }
+    // 增加生命周期 getDerivedStateFromProps
+    if (this.ownVdom.type.getDerivedStateFromProps) {
+      let newState = this.ownVdom.type.getDerivedStateFromProps(this.props, this.state);
+      if (newState) {
+        this.state = newState;
+      }
+    }
     const newVdom = this.render();
+    // 增加生命周期 getSnapshotBeforeUpdate
+    let extraArgs = this.getSnapshotBeforeUpdate && this.getSnapshotBeforeUpdate();
     let currentVdom = compareTwoVdom(this.oldVdom.dom.parentNode, this.oldVdom, newVdom);
     this.oldVdom = currentVdom;
     mountClassComponent(this, newVdom);
     // 增加生命周期 componentDidUpdate
     if (this.componentDidUpdate) {
-      this.componentDidUpdate()
+      this.componentDidUpdate(this.props, this.state, extraArgs);
     }
   }
 }

@@ -49,7 +49,10 @@ export function createDOM(vdom) {
   return dom;
 }
 
-// 函数组件
+/**
+ * 渲染 函数组件
+ * @param {*} vdom 
+ */
 function mountFunctionComponent(vdom) {
   const { type, props } = vdom;
   // 执行函数
@@ -57,12 +60,16 @@ function mountFunctionComponent(vdom) {
   return createDOM(renderVdom);
 }
 
-// 类组件
+/**
+ * 渲染 类组件
+ * @param {*} vdom 
+ */
 function mountClassComponent(vdom) {
   const { type, props } = vdom;
   // 构造实例
   const classInstance = new type(props);
   vdom.classInstance = classInstance;
+  classInstance.ownVdom = vdom;
   // 增加生命周期 componentWillMount
   if (classInstance.componentWillMount) {
     classInstance.componentWillMount();
