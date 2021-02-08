@@ -196,11 +196,14 @@ function updateChildren(parentDOM, oldVChildren, newVChildren) {
  * @param {*} newVdom 
  */
 function updateFunctionComponent(oldVdom, newVdom) {
-  let parentDOM = oldVdom.renderVdom.dom.parentNode;
-  let { type, props } = newVdom; //获取新的虚拟函数组件
-  let newRenderVdom = type(props);//传入属性对象并执行它,
-  newVdom.renderVdom = newRenderVdom;
-  compareTwoVdom(parentDOM, oldVdom.renderVdom, newRenderVdom);
+  // eslint-disable-next-line no-mixed-operators
+  let parentDOM = oldVdom.renderVdom && oldVdom.renderVdom.dom && oldVdom.dom.parentNode;
+  if (parentDOM) {
+    let { type, props } = newVdom; //获取新的虚拟函数组件
+    let newRenderVdom = type(props);//传入属性对象并执行它,
+    newVdom.renderVdom = newRenderVdom;
+    compareTwoVdom(parentDOM, oldVdom.renderVdom, newRenderVdom);
+  }
 }
 
 /**

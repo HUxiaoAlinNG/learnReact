@@ -99,8 +99,10 @@ class Component {
     const newVdom = this.render();
     // 增加生命周期 getSnapshotBeforeUpdate
     let extraArgs = this.getSnapshotBeforeUpdate && this.getSnapshotBeforeUpdate();
-    let currentVdom = compareTwoVdom(this.oldVdom.dom.parentNode, this.oldVdom, newVdom);
-    this.oldVdom = currentVdom;
+    if (this.oldVdom.dom && this.oldVdom.dom.parentNode) {
+      let currentVdom = compareTwoVdom(this.oldVdom.dom.parentNode, this.oldVdom, newVdom);
+      this.oldVdom = currentVdom;
+    }
     mountClassComponent(this, newVdom);
     // 增加生命周期 componentDidUpdate
     if (this.componentDidUpdate) {

@@ -51,13 +51,34 @@ function createElement(type, config, children) {
   };
 }
 
+/**
+ * 创建ref
+ */
 function createRef() {
   return { current: null };
+}
+
+/**
+ * 创建context上下文
+ */
+function createContext() {
+  function Provider(props) {
+    Provider._value = props.value;
+    return props.children;
+  }
+  function Consumer(props) {
+    return props.children(Provider._value);
+  }
+  return {
+    Provider,
+    Consumer,
+  };
 }
 
 const React = {
   createElement,
   Component,
   createRef,
+  createContext,
 };
 export default React
