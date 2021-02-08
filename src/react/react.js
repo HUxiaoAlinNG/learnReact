@@ -1,4 +1,4 @@
-import Component from "./component";
+import Component, { PureComponent } from "./component";
 
 /**
  * createElement
@@ -75,10 +75,24 @@ function createContext() {
   };
 }
 
+/**
+ * 返回纯组件
+ * @param {*} OldComponent 
+ */
+function memo(OldComponent) {
+  return class extends React.PureComponent {
+    render() {
+      return createElement(OldComponent, this.props)
+    }
+  }
+}
+
 const React = {
   createElement,
+  PureComponent,
   Component,
   createRef,
   createContext,
+  memo,
 };
 export default React

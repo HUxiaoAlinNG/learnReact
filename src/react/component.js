@@ -118,4 +118,42 @@ function mountClassComponent(classInstance, newVdom) {
   classInstance.dom = newDom;
 }
 
+/**
+ * 纯组件
+ * 重写组件shouldComponentUpdate方法,只有状态或者 属性变化了才会进行更新，否则 不更新
+ */
+export class PureComponent extends Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState)
+  }
+}
+/**
+ * 用浅比较 obj1和obj2是否相等
+ * 只要内存地址一样，就认为是相等的，不一样就不相等
+ * @param {} obj1 
+ * @param {*} obj2 
+ */
+function shallowEqual(obj1, obj2) {
+  //如果引用地址是一样的，就相等.不关心属性变没变
+  if (obj1 === obj2) {
+    return true;
+  }
+  //任何一方不是对象或者 不是null也不相等  null null  NaN!==NaN
+  if (typeof obj1 !== "object" || obj1 === null || typeof obj2 !== "object" || obj2 === null) {
+    return false;
+  }
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+  //属性的数量不一样，不相等
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+  for (let key of keys1) {
+    if (!obj2.hasOwnProperty(key) || obj1[key] !== obj2[key]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export default Component;
