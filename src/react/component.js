@@ -1,4 +1,4 @@
-import { createDOM } from "./react-dom"
+import { createDOM, compareTwoVdom } from "./react-dom"
 import { isFunction } from "./utils"
 
 // 批量更新队列
@@ -15,9 +15,12 @@ export const updateQueue = {
 };
 
 // 是否更新
-function shouldUpdate(classInstance, nextState) {
+function shouldUpdate(classInstance, nextProps, nextState) {
   // 增加生命周期 shouldComponentUpdate
-  let noUpdate = classInstance.shouldComponentUpdate && !classInstance.shouldComponentUpdate(classInstance.props, nextState);
+  let noUpdate = classInstance.shouldComponentUpdate && !classInstance.shouldComponentUpdate(nextProps, nextState);
+  if (nextProps) {
+    classInstance.props = nextProps;
+  }
   classInstance.state = nextState;
   if (!noUpdate) {
     // 渲染页面
@@ -35,15 +38,16 @@ class Updater {
     this.pendingStates.push(partialState);
     this.emitUpdate();
   }
-  // 更新
-  emitUpdate() {
-    // 延迟批量更新 或 立即更新
-    updateQueue.isBatchingUpdate ? updateQueue.add(this) : this.updateComponent();
+  // 属性更新或状态更新
+  emitUpdate(nextProps) {
+    this.nextProps = nextProps;
+    // isBatchingUpdate 延迟批量更新 或 立即更新
+    (nextProps || !updateQueue.isBatchingUpdate) ? this.updateComponent() : updateQueue.add(this);
   }
   updateComponent() {
-    const { classInstance, pendingStates } = this;
-    if (pendingStates.length > 0) {
-      shouldUpdate(classInstance, this.getState())
+    const { classInstance, pendingStates, nextProps } = this;
+    if (nextProps || pendingStates.length > 0) {
+      shouldUpdate(classInstance, nextProps, this.getState())
     }
   }
   // 更新状态
@@ -74,6 +78,7 @@ class Component {
     this.props = props;
     this.state = {};
     this.updater = new Updater(this);
+    this.nextProps = null;
   }
   setState(partialState) {
     this.updater.addState(partialState);
@@ -84,8 +89,10 @@ class Component {
     if (this.componentWillUpdate) {
       this.componentWillUpdate();
     }
-    const newRenderVdom = this.render();
-    mountClassComponent(this, newRenderVdom);
+    const newVdom = this.render();
+    let currentVdom = compareTwoVdom(this.oldVdom.dom.parentNode, this.oldVdom, newVdom);
+    this.oldVdom = currentVdom;
+    mountClassComponent(this, newVdom);
     // 增加生命周期 componentDidUpdate
     if (this.componentDidUpdate) {
       this.componentDidUpdate()
@@ -93,11 +100,11 @@ class Component {
   }
 }
 
-function mountClassComponent(classInstance, newRenderVdom) {
-  const oldDOM = classInstance.dom;
-  const newDOM = createDOM(newRenderVdom);
-  oldDOM.parentNode.replaceChild(newDOM, oldDOM);
-  classInstance.dom = newDOM;
+function mountClassComponent(classInstance, newVdom) {
+  const oldDom = classInstance.dom;
+  const newDom = createDOM(newVdom);
+  oldDom.parentNode.replaceChild(newDom, oldDom);
+  classInstance.dom = newDom;
 }
 
 export default Component;
