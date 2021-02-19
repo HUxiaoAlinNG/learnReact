@@ -76,6 +76,14 @@ function createContext() {
 }
 
 /**
+ * 使用上下文
+ * @param {*} context 
+ */
+function useContext(context) {
+  return context._value;
+}
+
+/**
  * 返回纯组件
  * @param {*} OldComponent 
  */
@@ -93,6 +101,7 @@ const React = {
   Component,
   createRef,
   createContext,
+  useContext,
   memo,
 };
 export default React
